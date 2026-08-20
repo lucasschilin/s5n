@@ -8,7 +8,9 @@ import (
 )
 
 type Config struct {
-	AppPort string
+	AppPort                   string
+	IncomingMessagesQueueName string
+	RabbitMQConnURL           string
 }
 
 var AppConfig *Config
@@ -19,6 +21,8 @@ func Load() {
 	}
 
 	AppConfig = &Config{
-		AppPort: os.Getenv("APP_PORT"),
+		AppPort:                   os.Getenv("APP_PORT"),
+		IncomingMessagesQueueName: os.Getenv("INCOMING_MESSAGES_QUEUE_NAME"),
+		RabbitMQConnURL:           os.Getenv("RABBITMQ_CONN_URL"),
 	}
 }
