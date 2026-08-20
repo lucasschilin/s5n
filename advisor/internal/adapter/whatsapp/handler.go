@@ -34,7 +34,7 @@ func (h *WebhookHandler) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 		MessageID:  payload.MessageID,
 		UserID:     payload.From,
 		Body:       payload.Body,
-		ReceivedAt: time.Now(),
+		ReceivedAt: time.Now().UTC(),
 	}
 
 	if err := h.queue.EnqueueIncomingMessage(r.Context(), rawMessage); err != nil {
