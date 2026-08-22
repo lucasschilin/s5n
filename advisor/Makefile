@@ -1,5 +1,5 @@
-run:
-	go run ./cmd/server/
+run-receiver:
+	go run ./cmd/receiver/
 
 tidy:
 	go mod tidy
