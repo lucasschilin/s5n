@@ -1,6 +1,6 @@
 package domain
 
-const reminderAgentName = "Tchuko"
+const reminderAgentName = "Mel"
 
 const RouterPrompt = `Você é o classificador de intenções e roteador do S5N.
 Sua função é analisar a mensagem do usuário e direcioná-la para a fila adequada ou gerar uma resposta direta.
@@ -29,5 +29,4 @@ RESPONDA ESTRITAMENTE EM JSON NO SEGUINDO O FORMATO:
     "confidence": float,
     "parameters": object
 }
-
 `

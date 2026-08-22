@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/lucasschilin/s5n/advisor/internal/domain"
 )
@@ -16,6 +17,12 @@ func NewLLMMockAdapter() *LLMMockAdapter {
 }
 
 func (a *LLMMockAdapter) ClassifyIntent(ctx context.Context, userText string) (*domain.ClassifiedIntent, error) {
+
+	preprompt := domain.RouterPrompt +
+		"\n\nData/Hora Atual: " + time.Now().UTC().String() +
+		"\nMensagem do usuário: " + userText
+
+	fmt.Println(preprompt)
 
 	rawResponse := `{
 		"target_queue": "reminder_agent",
