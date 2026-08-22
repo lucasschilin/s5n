@@ -2,6 +2,6 @@ package domain
 
 import "context"
 
-type Classifier interface {
+type IntentClassifier interface {
 	ClassifyIntent(ctx context.Context, userText, fallbackMessageQueueName string) (*ClassifiedIntent, error)
 }

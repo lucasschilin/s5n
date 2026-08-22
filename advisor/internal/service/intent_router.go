@@ -9,12 +9,12 @@ import (
 )
 
 type IntentRouterService struct {
-	llm                      domain.Classifier
+	llm                      domain.IntentClassifier
 	producer                 domain.QueueProducer
 	fallbackMessageQueueName string
 }
 
-func NewIntentRouterService(llm domain.Classifier, producer domain.QueueProducer, fallbackMessageQueueName string) *IntentRouterService {
+func NewIntentRouterService(llm domain.IntentClassifier, producer domain.QueueProducer, fallbackMessageQueueName string) *IntentRouterService {
 	return &IntentRouterService{
 		llm:                      llm,
 		producer:                 producer,
