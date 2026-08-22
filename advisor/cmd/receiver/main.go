@@ -27,10 +27,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error initializing queue producer: %v", err)
 	}
+	defer queueProducer.Close()
+
 	// Initialize WhatsappWebhook handler
 	webhookHandler := whatsapp.NewWebhookHandler(queueProducer)
-	http.HandleFunc("/webhook", func(w http.ResponseWriter, r *http.Request) {
 
+	http.HandleFunc("/webhook", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
 			webhookHandler.HandleWebhook(w, r)
