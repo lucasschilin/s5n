@@ -73,3 +73,12 @@ func (c *RabbitMQConsumer) StartConsuming(ctx context.Context, handler MessageHa
 
 	return nil
 }
+
+func (r *RabbitMQConsumer) Close() {
+	if r.channel != nil {
+		r.channel.Close()
+	}
+	if r.conn != nil {
+		r.conn.Close()
+	}
+}

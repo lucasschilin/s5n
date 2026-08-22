@@ -27,18 +27,20 @@ func NewRabbitMQProducer(amqpURL, queueName string) (*RabbitMQProducer, error) {
 		return nil, fmt.Errorf("failed to open channel in RabbitMQ: %w", err)
 	}
 
-	_, err = ch.QueueDeclare(
-		queueName,
-		true,  // durable
-		false, // auto-delete when there are no consumers
-		false, // exclusive
-		false, // no-wait
-		nil,   // arguments
-	)
-	if err != nil {
-		ch.Close()
-		conn.Close()
-		return nil, fmt.Errorf("failed to declare queue %s: %w", queueName, err)
+	if queueName != "" {
+		_, err = ch.QueueDeclare(
+			queueName,
+			true,  // durable
+			false, // auto-delete when there are no consumers
+			false, // exclusive
+			false, // no-wait
+			nil,   // arguments
+		)
+		if err != nil {
+			ch.Close()
+			conn.Close()
+			return nil, fmt.Errorf("failed to declare queue %s: %w", queueName, err)
+		}
 	}
 
 	return &RabbitMQProducer{

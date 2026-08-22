@@ -2,6 +2,7 @@ package whatsapp
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -36,6 +37,8 @@ func (h *WebhookHandler) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 		Body:       payload.Body,
 		ReceivedAt: time.Now().UTC(),
 	}
+
+	log.Printf("Received message: %+v", rawMessage)
 
 	if err := h.queue.EnqueueIncomingMessage(r.Context(), rawMessage); err != nil {
 		http.Error(w, "failed to enqueue message", http.StatusInternalServerError)
