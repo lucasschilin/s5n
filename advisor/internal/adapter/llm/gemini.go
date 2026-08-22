@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/lucasschilin/s5n/advisor/internal/domain"
@@ -32,29 +33,24 @@ func NewGeminiAdapter(ctx context.Context, apiKey, model string) (*GeminiAdapter
 func (a *GeminiAdapter) ClassifyIntent(
 	ctx context.Context, userText, fallbackMessageQueueName string,
 ) (*domain.ClassifiedIntent, error) {
-	preprompt := domain.RouterPrompt(fallbackMessageQueueName)
+
+	// Passa as regras principais na SystemInstruction (recomendado pela API do Gemini)
+	systemInstruction := domain.RouterPrompt(fallbackMessageQueueName)
+
 	prompt := fmt.Sprintf(
-		"%s\n\nData/Hora Atual: %s\nMensagem do usuário: %s",
-		preprompt,
+		"Data/Hora Atual: %s\nMensagem do usuário: %s",
 		time.Now().UTC().Format(time.RFC3339),
 		userText,
 	)
 
-	fmt.Println(prompt)
-
 	config := &genai.GenerateContentConfig{
-		ResponseMIMEType: "application/json",
-		ResponseSchema: &genai.Schema{
-			Type: genai.TypeObject,
-			Properties: map[string]*genai.Schema{
-				"target_queue": {Type: genai.TypeString},
-				"action":       {Type: genai.TypeString},
-				"confidence":   {Type: genai.TypeNumber},
-				"parameters":   {Type: genai.TypeObject},
+		SystemInstruction: &genai.Content{
+			Parts: []*genai.Part{
+				{Text: systemInstruction},
 			},
-			Required: []string{"target_queue", "action", "confidence", "parameters"},
 		},
-		Temperature: genai.Ptr(float32(0.1)),
+		ResponseMIMEType: "application/json", // Força retorno puro em JSON
+		Temperature:      genai.Ptr(float32(0.1)),
 	}
 
 	resp, err := a.client.Models.GenerateContent(ctx, a.model, genai.Text(prompt), config)
@@ -66,6 +62,8 @@ func (a *GeminiAdapter) ClassifyIntent(
 	if rawText == "" {
 		return nil, fmt.Errorf("empty response from Gemini API")
 	}
+
+	log.Println("Gemini Raw Response:", rawText)
 
 	var intent domain.ClassifiedIntent
 	if err := json.Unmarshal([]byte(rawText), &intent); err != nil {
