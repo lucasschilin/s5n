@@ -48,29 +48,45 @@ func NewRabbitMQProducer(amqpURL, queueName string) (*RabbitMQProducer, error) {
 	}, nil
 }
 
-func (r *RabbitMQProducer) EnqueueIncomingMessage(ctx context.Context, message *domain.RawIncomingMessage) error {
-	body, err := json.Marshal(message)
+func (r *RabbitMQProducer) EnqueueToQueue(ctx context.Context, targetQueue string, payload any) error {
+	_, err := r.channel.QueueDeclare(
+		targetQueue,
+		true,  // durable
+		false, // auto-delete
+		false, // exclusive
+		false, // no-wait
+		nil,   // arguments
+	)
 	if err != nil {
-		return fmt.Errorf("fail to marshal message: %w", err)
+		return fmt.Errorf("failed to declare target queue %s: %w", targetQueue, err)
+	}
+
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("fail to marshal payload: %w", err)
 	}
 
 	err = r.channel.PublishWithContext(
 		ctx,
 		"",          // default exchange
-		r.queueName, // routing key = queue name
+		targetQueue, // routing key = nome da fila destino
 		false,       // mandatory
 		false,       // immediate
 		amqp.Publishing{
 			ContentType:  "application/json",
-			DeliveryMode: amqp.Persistent, // Garante gravação em disco
+			DeliveryMode: amqp.Persistent,
 			Body:         body,
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("fail to publish message to queue: %w", err)
+		return fmt.Errorf("fail to publish payload to queue %s: %w", targetQueue, err)
 	}
 
 	return nil
+}
+
+func (r *RabbitMQProducer) EnqueueIncomingMessage(ctx context.Context, message *domain.RawIncomingMessage) error {
+	return r.EnqueueToQueue(ctx, r.queueName, message)
 }
 
 func (r *RabbitMQProducer) Close() {

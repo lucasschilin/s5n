@@ -18,4 +18,6 @@ type QueueProducer interface {
 	EnqueueIncomingMessage(
 		ctx context.Context, message *RawIncomingMessage,
 	) error
+
+	EnqueueToQueue(ctx context.Context, targetQueue string, payload any) error
 }
