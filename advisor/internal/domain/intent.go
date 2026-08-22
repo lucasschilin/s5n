@@ -4,7 +4,6 @@ import "encoding/json"
 
 const (
 	QueueAgentReminder = "reminder_agent"
-	QueueAgentUnknown  = "unknown_agent"
 )
 
 type ClassifiedIntent struct {

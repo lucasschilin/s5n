@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/lucasschilin/s5n/advisor/internal/domain"
@@ -16,9 +15,9 @@ func NewLLMMockAdapter() *LLMMockAdapter {
 	return &LLMMockAdapter{}
 }
 
-func (a *LLMMockAdapter) ClassifyIntent(ctx context.Context, userText string) (*domain.ClassifiedIntent, error) {
+func (a *LLMMockAdapter) ClassifyIntent(ctx context.Context, userText, fallbackMessageQueueName string) (*domain.ClassifiedIntent, error) {
 
-	preprompt := domain.RouterPrompt +
+	preprompt := domain.RouterPrompt(fallbackMessageQueueName) +
 		"\n\nData/Hora Atual: " + time.Now().UTC().String() +
 		"\nMensagem do usuário: " + userText
 
@@ -35,13 +34,7 @@ func (a *LLMMockAdapter) ClassifyIntent(ctx context.Context, userText string) (*
 	}`
 
 	var intent domain.ClassifiedIntent
-	if err := json.Unmarshal([]byte(rawResponse), &intent); err != nil {
-		return nil, fmt.Errorf("fail to unmarshal response: %w", err)
-	}
-
-	if strings.TrimSpace(intent.TargetQueue) == "" {
-		intent.TargetQueue = domain.QueueAgentUnknown
-	}
+	json.Unmarshal([]byte(rawResponse), &intent)
 
 	return &intent, nil
 }

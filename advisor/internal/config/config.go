@@ -10,7 +10,10 @@ import (
 type Config struct {
 	AppPort                   string
 	IncomingMessagesQueueName string
+	OutgoingMessagesQueueName string
 	RabbitMQConnURL           string
+	GeminiAPIKey              string
+	GeminiModel               string
 }
 
 var AppConfig *Config
@@ -23,6 +26,9 @@ func Load() {
 	AppConfig = &Config{
 		AppPort:                   os.Getenv("APP_PORT"),
 		IncomingMessagesQueueName: os.Getenv("QUEUE_NAME_MESSAGES_INCOMING"),
-		RabbitMQConnURL:           os.Getenv("RABBITMQ_CONN_URL"),
+		OutgoingMessagesQueueName: os.Getenv("QUEUE_NAME_MESSAGES_OUTGOING"),
+		RabbitMQConnURL:           os.Getenv("QUEUE_RABBITMQ_CONN_URL"),
+		GeminiAPIKey:              os.Getenv("LLM_GEMINI_API_KEY"),
+		GeminiModel:               os.Getenv("LLM_GEMINI_MODEL"),
 	}
 }

@@ -22,7 +22,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	llmAdapter := llm.NewLLMMockAdapter()
+	llmAdapter, err := llm.NewGeminiAdapter(context.Background(), config.AppConfig.GeminiAPIKey, config.AppConfig.GeminiModel)
 
 	consumer, err := queue.NewRabbitMQConsumer(config.AppConfig.RabbitMQConnURL, config.AppConfig.IncomingMessagesQueueName)
 	if err != nil {
@@ -36,7 +36,7 @@ func main() {
 	}
 	defer producer.Close()
 
-	routerService := service.NewIntentRouterService(llmAdapter, producer)
+	routerService := service.NewIntentRouterService(llmAdapter, producer, config.AppConfig.OutgoingMessagesQueueName)
 
 	err = consumer.StartConsuming(ctx, routerService.RouteMessage)
 	if err != nil {
