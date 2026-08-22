@@ -22,7 +22,7 @@ func Load() {
 
 	AppConfig = &Config{
 		AppPort:                   os.Getenv("APP_PORT"),
-		IncomingMessagesQueueName: os.Getenv("INCOMING_MESSAGES_QUEUE_NAME"),
+		IncomingMessagesQueueName: os.Getenv("QUEUE_NAME_MESSAGES_INCOMING"),
 		RabbitMQConnURL:           os.Getenv("RABBITMQ_CONN_URL"),
 	}
 }

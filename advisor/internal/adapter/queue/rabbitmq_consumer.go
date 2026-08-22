@@ -30,6 +30,22 @@ func NewRabbitMQConsumer(amqpURL, queueName string) (*RabbitMQConsumer, error) {
 		return nil, err
 	}
 
+	if queueName != "" {
+		_, err = ch.QueueDeclare(
+			queueName,
+			true,  // durable
+			false, // auto-delete when there are no consumers
+			false, // exclusive
+			false, // no-wait
+			nil,   // arguments
+		)
+		if err != nil {
+			ch.Close()
+			conn.Close()
+			return nil, fmt.Errorf("failed to declare queue %s: %w", queueName, err)
+		}
+	}
+
 	return &RabbitMQConsumer{
 		conn:      conn,
 		channel:   ch,

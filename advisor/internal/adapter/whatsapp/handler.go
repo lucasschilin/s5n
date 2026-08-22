@@ -10,10 +10,10 @@ import (
 )
 
 type WebhookHandler struct {
-	queue domain.QueueProducer
+	queue domain.IncomingMessagesQueueProducer
 }
 
-func NewWebhookHandler(queue domain.QueueProducer) *WebhookHandler {
+func NewWebhookHandler(queue domain.IncomingMessagesQueueProducer) *WebhookHandler {
 	return &WebhookHandler{
 		queue: queue,
 	}
