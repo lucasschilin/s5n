@@ -3,8 +3,8 @@ package domain
 import "encoding/json"
 
 const (
-	QueueReminder = "reminder"
-	QueueUnknown  = "unknown_queue"
+	QueueAgentReminder = "reminder_agent"
+	QueueAgentUnknown  = "unknown_agent"
 )
 
 type ClassifiedIntent struct {
