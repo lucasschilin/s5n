@@ -26,7 +26,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("❌ Error initializing LLM adapter: %v", err)
 	}
-	resilientLLMWrapper := llm.NewResilientLLMWrapper(llmAdapter)
 
 	consumer, err := queue.NewRabbitMQConsumer(config.AppConfig.RabbitMQConnURL, config.AppConfig.IncomingMessagesQueueName)
 	if err != nil {
@@ -40,7 +39,7 @@ func main() {
 	}
 	defer producer.Close()
 
-	routerService := service.NewIntentRouterService(resilientLLMWrapper, producer, config.AppConfig.OutgoingMessagesQueueName)
+	routerService := service.NewIntentRouterService(llmAdapter, producer, config.AppConfig.OutgoingMessagesQueueName)
 
 	err = consumer.StartConsuming(ctx, routerService.RouteMessage)
 	if err != nil {
