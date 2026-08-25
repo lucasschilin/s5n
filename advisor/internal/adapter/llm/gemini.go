@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/lucasschilin/s5n/advisor/internal/domain"
@@ -62,8 +61,6 @@ func (a *GeminiAdapter) ClassifyIntent(
 	if rawText == "" {
 		return nil, fmt.Errorf("empty response from Gemini API")
 	}
-
-	log.Println("Gemini Raw Response:", rawText)
 
 	var intent domain.ClassifiedIntent
 	if err := json.Unmarshal([]byte(rawText), &intent); err != nil {

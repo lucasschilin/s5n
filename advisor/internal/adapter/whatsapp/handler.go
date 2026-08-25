@@ -21,7 +21,7 @@ func NewWebhookHandler(queue domain.IncomingMessagesQueueProducer) *WebhookHandl
 
 func (h *WebhookHandler) HandleWebhook(w http.ResponseWriter, r *http.Request) {
 	var payload struct {
-		MessageID string `json:"id"`
+		MessageID string `json:"message_id"`
 		From      string `json:"from"`
 		Body      string `json:"body"`
 	}
