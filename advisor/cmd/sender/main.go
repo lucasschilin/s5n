@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/lucasschilin/s5n/advisor/internal/adapter/messenger"
 	"github.com/lucasschilin/s5n/advisor/internal/adapter/queue"
 	"github.com/lucasschilin/s5n/advisor/internal/config"
 	"github.com/lucasschilin/s5n/advisor/internal/domain"
@@ -29,7 +30,9 @@ func main() {
 	}
 	defer consumer.Close()
 
-	messageSenderService := service.NewMessageSenderService()
+	messenger := messenger.NewStubMessengerAdapter()
+
+	messageSenderService := service.NewMessageSenderService(messenger)
 
 	err = consumer.StartConsuming(ctx, messageSenderService.SendMessage)
 	if err != nil {

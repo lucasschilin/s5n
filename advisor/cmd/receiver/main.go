@@ -39,7 +39,6 @@ func main() {
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
-
 	})
 
 	port := config.AppConfig.AppPort

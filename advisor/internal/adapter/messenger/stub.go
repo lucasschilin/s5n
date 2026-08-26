@@ -2,6 +2,7 @@ package messenger
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -9,15 +10,15 @@ import (
 	"github.com/lucasschilin/s5n/advisor/internal/domain"
 )
 
-type StubWebhookHandler struct {
+type StubMessengerAdapter struct {
 	queue domain.IncomingMessagesQueueProducer
 }
 
-func NewStubMessengerAdapter() *StubWebhookHandler {
-	return &StubWebhookHandler{}
+func NewStubMessengerAdapter() *StubMessengerAdapter {
+	return &StubMessengerAdapter{}
 }
 
-func (h *StubWebhookHandler) HandleWebhook(queue domain.IncomingMessagesQueueProducer) http.HandlerFunc {
+func (h *StubMessengerAdapter) HandleWebhook(queue domain.IncomingMessagesQueueProducer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var payload struct {
 			MessageID string `json:"message_id"`
@@ -46,4 +47,14 @@ func (h *StubWebhookHandler) HandleWebhook(queue domain.IncomingMessagesQueuePro
 
 		w.WriteHeader(http.StatusNoContent)
 	}
+}
+
+func (s *StubMessengerAdapter) SendMessage(userID, body string, replyMessageID string) error {
+	if replyMessageID == "" {
+		fmt.Printf("Sending message to user [%s]: '%s'\n\n", userID, body)
+		return nil
+	}
+
+	fmt.Printf("Answering message [%s] to user [%s]: '%s'\n\n", replyMessageID, userID, body)
+	return nil
 }
