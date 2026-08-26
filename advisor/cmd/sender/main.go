@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/lucasschilin/s5n/advisor/internal/adapter/llm"
+	"github.com/lucasschilin/s5n/advisor/internal/adapter/messenger"
 	"github.com/lucasschilin/s5n/advisor/internal/adapter/queue"
 	"github.com/lucasschilin/s5n/advisor/internal/config"
 	"github.com/lucasschilin/s5n/advisor/internal/domain"
@@ -18,35 +18,23 @@ import (
 func init() {
 	config.Load()
 }
-
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	llmAdapter, err := llm.NewGeminiAdapter(
-		context.Background(), config.AppConfig.GeminiAPIKey, config.AppConfig.GeminiModel,
-	)
-	if err != nil {
-		log.Fatalf("❌ Error initializing LLM adapter: %v", err)
-	}
-
-	consumer, err := queue.NewRabbitMQConsumer[domain.RawIncomingMessage](
-		config.AppConfig.RabbitMQConnURL, config.AppConfig.IncomingMessagesQueueName,
+	consumer, err := queue.NewRabbitMQConsumer[domain.RawOutgoingMessage](
+		config.AppConfig.RabbitMQConnURL, config.AppConfig.OutgoingMessagesQueueName,
 	)
 	if err != nil {
 		log.Fatalf("❌ Error initializing queue consumer: %v", err)
 	}
 	defer consumer.Close()
 
-	producer, err := queue.NewRabbitMQProducer(config.AppConfig.RabbitMQConnURL, "")
-	if err != nil {
-		log.Fatalf("❌ Error initializing queue producer: %v", err)
-	}
-	defer producer.Close()
+	messenger := messenger.NewStubMessengerAdapter()
 
-	routerService := service.NewIntentRouterService(llmAdapter, producer, config.AppConfig.OutgoingMessagesQueueName)
+	messageSenderService := service.NewMessageSenderService(messenger)
 
-	err = consumer.StartConsuming(ctx, routerService.RouteMessage)
+	err = consumer.StartConsuming(ctx, messageSenderService.SendMessage)
 	if err != nil {
 		log.Fatalf("❌ Error starting consumption: %v", err)
 	}

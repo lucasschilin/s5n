@@ -6,19 +6,18 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/lucasschilin/s5n/advisor/internal/domain"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type MessageHandlerFunc func(ctx context.Context, msg domain.RawIncomingMessage) error
+type MessageHandlerFunc[T any] func(ctx context.Context, msg T) error
 
-type RabbitMQConsumer struct {
+type RabbitMQConsumer[T any] struct {
 	conn      *amqp.Connection
 	channel   *amqp.Channel
 	queueName string
 }
 
-func NewRabbitMQConsumer(amqpURL, queueName string) (*RabbitMQConsumer, error) {
+func NewRabbitMQConsumer[T any](amqpURL, queueName string) (*RabbitMQConsumer[T], error) {
 	conn, err := amqp.Dial(amqpURL)
 	if err != nil {
 		return nil, err
@@ -46,14 +45,14 @@ func NewRabbitMQConsumer(amqpURL, queueName string) (*RabbitMQConsumer, error) {
 		}
 	}
 
-	return &RabbitMQConsumer{
+	return &RabbitMQConsumer[T]{
 		conn:      conn,
 		channel:   ch,
 		queueName: queueName,
 	}, nil
 }
 
-func (c *RabbitMQConsumer) StartConsuming(ctx context.Context, handler MessageHandlerFunc) error {
+func (c *RabbitMQConsumer[T]) StartConsuming(ctx context.Context, handler MessageHandlerFunc[T]) error {
 	msgs, err := c.channel.Consume(
 		c.queueName,
 		"",
@@ -70,27 +69,27 @@ func (c *RabbitMQConsumer) StartConsuming(ctx context.Context, handler MessageHa
 	log.Printf("👷 Consumer started for queue: %s", c.queueName)
 
 	for d := range msgs {
-		var rawMsg domain.RawIncomingMessage
-		if err := json.Unmarshal(d.Body, &rawMsg); err != nil {
+		var msg T
+		if err := json.Unmarshal(d.Body, &msg); err != nil {
 			log.Printf("[ERRO] Corrupted payload, sending NACK without requeue: %v", err)
 			d.Nack(false, false)
 			continue
 		}
 
-		if err := handler(ctx, rawMsg); err != nil {
-			log.Printf("[ERRO PROCESSAMENTO] re-queueing message %s: %v", rawMsg.MessageID, err)
+		if err := handler(ctx, msg); err != nil {
+			log.Printf("[ERRO PROCESSAMENTO] re-queueing message on queue [%s]: %v", c.queueName, err)
 			d.Nack(false, true)
 			continue
 		}
 
 		d.Ack(false)
-		log.Printf("✅ Message %s processed and removed from queue %s", rawMsg.MessageID, c.queueName)
+		log.Printf("✅ Message processed and ACKed on queue %s", c.queueName)
 	}
 
 	return nil
 }
 
-func (r *RabbitMQConsumer) Close() {
+func (r *RabbitMQConsumer[T]) Close() {
 	if r.channel != nil {
 		r.channel.Close()
 	}

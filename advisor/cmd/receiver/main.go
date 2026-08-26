@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/lucasschilin/s5n/advisor/internal/adapter/messenger"
 	"github.com/lucasschilin/s5n/advisor/internal/adapter/queue"
-	"github.com/lucasschilin/s5n/advisor/internal/adapter/whatsapp"
 	"github.com/lucasschilin/s5n/advisor/internal/config"
 )
 
@@ -30,16 +30,15 @@ func main() {
 	defer queueProducer.Close()
 
 	// Initialize WhatsappWebhook handler
-	webhookHandler := whatsapp.NewWebhookHandler(queueProducer)
+	messengerAdapter := messenger.NewStubMessengerAdapter()
 
 	http.HandleFunc("/webhook", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
-			webhookHandler.HandleWebhook(w, r)
+			messengerAdapter.HandleWebhook(queueProducer)(w, r)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
-
 	})
 
 	port := config.AppConfig.AppPort
