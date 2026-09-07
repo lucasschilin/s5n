@@ -7,6 +7,7 @@ import (
 	"github.com/lucasschilin/s5n/advisor/internal/adapter/messenger"
 	"github.com/lucasschilin/s5n/advisor/internal/adapter/queue"
 	"github.com/lucasschilin/s5n/advisor/internal/config"
+	"github.com/lucasschilin/s5n/advisor/internal/domain"
 )
 
 func init() {
@@ -30,7 +31,14 @@ func main() {
 	defer queueProducer.Close()
 
 	// Initialize WhatsappWebhook handler
-	messengerAdapter := messenger.NewStubMessengerAdapter()
+
+	var messengerAdapter domain.Messenger
+	if config.AppConfig.TestReceiverStubMode {
+		log.Println("🟢 Running in TEST_RECEIVER_STUB_MODE with StubMessengerAdapter for webhook handling.")
+		messengerAdapter = messenger.NewStubMessengerAdapter()
+	} else {
+		log.Println("⚠️ Running in PRODUCTION mode. Ensure you have a proper MessengerAdapter implementation.")
+	}
 
 	http.HandleFunc("/webhook", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
