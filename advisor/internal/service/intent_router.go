@@ -10,14 +10,14 @@ import (
 )
 
 type IntentRouterService struct {
-	llm                      domain.IntentClassifier
+	classifier               domain.IntentClassifier
 	producer                 domain.QueueProducer
 	fallbackMessageQueueName string
 }
 
-func NewIntentRouterService(llm domain.IntentClassifier, producer domain.QueueProducer, fallbackMessageQueueName string) *IntentRouterService {
+func NewIntentRouterService(classifier domain.IntentClassifier, producer domain.QueueProducer, fallbackMessageQueueName string) *IntentRouterService {
 	return &IntentRouterService{
-		llm:                      llm,
+		classifier:               classifier,
 		producer:                 producer,
 		fallbackMessageQueueName: fallbackMessageQueueName,
 	}
@@ -28,7 +28,7 @@ type OutgoingParameters struct {
 }
 
 func (s *IntentRouterService) RouteMessage(ctx context.Context, msg domain.RawIncomingMessage) error {
-	intent, err := s.llm.ClassifyIntent(ctx, msg.Body, s.fallbackMessageQueueName)
+	intent, err := s.classifier.ClassifyIntent(ctx, msg.Body, s.fallbackMessageQueueName)
 	if err != nil {
 		return fmt.Errorf("fail	on LLM classification: %w", err)
 	}
