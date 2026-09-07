@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/lucasschilin/s5n/advisor/internal/adapter/classifier"
 	"github.com/lucasschilin/s5n/advisor/internal/adapter/llm"
 	"github.com/lucasschilin/s5n/advisor/internal/adapter/queue"
 	"github.com/lucasschilin/s5n/advisor/internal/config"
@@ -23,11 +24,21 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	classifierAdapter, err := llm.NewGeminiAdapter(
-		context.Background(), config.AppConfig.GeminiAPIKey, config.AppConfig.GeminiModel,
+	var (
+		classifierAdapter domain.IntentClassifier
+		err               error
 	)
-	if err != nil {
-		log.Fatalf("❌ Error initializing LLM adapter: %v", err)
+
+	if config.AppConfig.TestRouterStubMode {
+		classifierAdapter = classifier.NewStubAdapter()
+		log.Println("🟢 Running in TEST_ROUTER_STUB_MODE with StubAdapter for intent classification.")
+	} else {
+		classifierAdapter, err = llm.NewGeminiAdapter(
+			context.Background(), config.AppConfig.GeminiAPIKey, config.AppConfig.GeminiModel,
+		)
+		if err != nil {
+			log.Fatalf("❌ Error initializing LLM adapter: %v", err)
+		}
 	}
 
 	consumer, err := queue.NewRabbitMQConsumer[domain.RawIncomingMessage](

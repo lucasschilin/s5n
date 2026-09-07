@@ -14,6 +14,7 @@ type Config struct {
 	RabbitMQConnURL           string
 	GeminiAPIKey              string
 	GeminiModel               string
+	TestRouterStubMode        bool
 }
 
 var AppConfig *Config
@@ -23,6 +24,11 @@ func Load() {
 		log.Println("Any .env file finded.")
 	}
 
+	testStubMode := false
+	if os.Getenv("TEST_ROUTER_STUB_MODE") == "true" {
+		testStubMode = true
+	}
+
 	AppConfig = &Config{
 		AppPort:                   os.Getenv("APP_PORT"),
 		IncomingMessagesQueueName: os.Getenv("QUEUE_NAME_MESSAGES_INCOMING"),
@@ -30,5 +36,6 @@ func Load() {
 		RabbitMQConnURL:           os.Getenv("QUEUE_RABBITMQ_CONN_URL"),
 		GeminiAPIKey:              os.Getenv("LLM_GEMINI_API_KEY"),
 		GeminiModel:               os.Getenv("LLM_GEMINI_MODEL"),
+		TestRouterStubMode:        testStubMode,
 	}
 }

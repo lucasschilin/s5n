@@ -3,6 +3,7 @@ module github.com/lucasschilin/s5n/advisor
 go 1.25.5
 
 require (
+	github.com/brianvoe/gofakeit/v7 v7.17.0
 	github.com/joho/godotenv v1.5.1
 	github.com/rabbitmq/amqp091-go v1.14.0
 	google.golang.org/genai v1.69.0
