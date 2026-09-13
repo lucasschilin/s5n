@@ -1,0 +1,5 @@
+module github.com/lucasschilin/s5n/reminder
+
+go 1.25.5
+
+require github.com/joho/godotenv v1.5.1
