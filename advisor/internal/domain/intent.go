@@ -15,5 +15,6 @@ type ClassifiedIntent struct {
 
 type RoutedMessage struct {
 	OriginalMessage RawIncomingMessage `json:"original_message"`
-	Intent          ClassifiedIntent   `json:"intent"`
+	Action          string             `json:"action"`
+	Parameters      json.RawMessage    `json:"parameters"`
 }

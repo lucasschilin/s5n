@@ -40,7 +40,8 @@ func (s *IntentRouterService) RouteMessage(ctx context.Context, msg domain.RawIn
 	if intent.TargetQueue != s.fallbackMessageQueueName {
 		payload = domain.RoutedMessage{
 			OriginalMessage: msg,
-			Intent:          *intent,
+			Action:          intent.Action,
+			Parameters:      intent.Parameters,
 		}
 	} else {
 		var params OutgoingParameters

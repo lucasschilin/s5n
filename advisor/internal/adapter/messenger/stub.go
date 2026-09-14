@@ -51,10 +51,10 @@ func (h *StubMessengerAdapter) HandleWebhook(queue domain.IncomingMessagesQueueP
 
 func (s *StubMessengerAdapter) SendMessage(userID, body string, replyMessageID string) error {
 	if replyMessageID == "" {
-		fmt.Printf("Sending message to user [%s]: '%s'\n\n", userID, body)
+		fmt.Printf("Sending message to user [%s]: '%s'\n", userID, body)
 		return nil
 	}
 
-	fmt.Printf("Answering message [%s] to user [%s]: '%s'\n\n", replyMessageID, userID, body)
+	fmt.Printf("Answering message [%s] to user [%s]: '%s'\n", replyMessageID, userID, body)
 	return nil
 }

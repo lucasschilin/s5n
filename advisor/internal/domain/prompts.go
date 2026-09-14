@@ -9,7 +9,7 @@ func RouterPrompt(outgoingMessagesQueueName string) string {
 	## Filas de Agentes Especialistas:
 	1. "reminder_agent" (` + reminderAgentName + ` - Agendamentos, compromissos e lembretes):
 		- Ação: "CREATE_REMINDER"
-		- Parameters esperados: {"title": string, "scheduled_at": string (ISO8601 se houver data/hora)}
+		- Parameters esperados: {"title": string (short identification), "description": string (description or / and complement),"remind_at": string (ISO8601 se houver data/hora)}
 
 	## Regra para Mensagens Fora de Escopo, Saudações ou Dúvidas Gerais:
 	Se a mensagem for uma saudação, uma conversa fiada, uma dúvida geral ou uma solicitação que NENHUM dos nossos agentes especialistas atende atualmente:
