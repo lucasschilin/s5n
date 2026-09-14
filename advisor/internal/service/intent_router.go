@@ -28,6 +28,7 @@ type OutgoingParameters struct {
 }
 
 func (s *IntentRouterService) RouteMessage(ctx context.Context, msg domain.RawIncomingMessage) error {
+	log.Printf("📩 Starting to route message: %+v", msg)
 	intent, err := s.classifier.ClassifyIntent(ctx, msg.Body, s.fallbackMessageQueueName)
 	if err != nil {
 		return fmt.Errorf("fail	on LLM classification: %w", err)
