@@ -35,7 +35,7 @@ func main() {
 	var messengerAdapter domain.Messenger
 	if config.AppConfig.TestReceiverStubMode {
 		log.Println("🟢 Running in TEST_RECEIVER_STUB_MODE with StubMessengerAdapter for webhook handling.")
-		messengerAdapter = messenger.NewStubMessengerAdapter()
+		messengerAdapter = messenger.NewStubAdapter()
 	} else {
 		log.Println("⚠️ Running in PRODUCTION mode. Ensure you have a proper MessengerAdapter implementation.")
 	}

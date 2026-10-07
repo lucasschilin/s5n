@@ -10,15 +10,15 @@ import (
 	"github.com/lucasschilin/s5n/advisor/internal/domain"
 )
 
-type StubMessengerAdapter struct {
+type StubAdapter struct {
 	queue domain.IncomingMessagesQueueProducer
 }
 
-func NewStubMessengerAdapter() *StubMessengerAdapter {
-	return &StubMessengerAdapter{}
+func NewStubAdapter() *StubAdapter {
+	return &StubAdapter{}
 }
 
-func (h *StubMessengerAdapter) HandleWebhook(queue domain.IncomingMessagesQueueProducer) http.HandlerFunc {
+func (h *StubAdapter) HandleWebhook(queue domain.IncomingMessagesQueueProducer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var payload struct {
 			MessageID string `json:"message_id"`
@@ -49,7 +49,7 @@ func (h *StubMessengerAdapter) HandleWebhook(queue domain.IncomingMessagesQueueP
 	}
 }
 
-func (s *StubMessengerAdapter) SendMessage(userID, body string, replyMessageID string) error {
+func (s *StubAdapter) SendMessage(userID, body string, replyMessageID string) error {
 	if replyMessageID == "" {
 		fmt.Printf("Sending message to user [%s]: '%s'\n", userID, body)
 		return nil

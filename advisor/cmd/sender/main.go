@@ -30,7 +30,7 @@ func main() {
 	}
 	defer consumer.Close()
 
-	messenger := messenger.NewStubMessengerAdapter()
+	messenger := messenger.NewStubAdapter()
 
 	messageSenderService := service.NewMessageSenderService(messenger)
 
