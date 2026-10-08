@@ -1,0 +1,1 @@
+ALTER TABLE reminders ADD COLUMN reminded_at DATETIME DEFAULT NULL;

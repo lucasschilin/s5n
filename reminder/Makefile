@@ -7,7 +7,7 @@ tidy:
 MIGRATIONS_PATH=db/migrations
 DB_URL=sqlite3://reminders.db
 .PHONY: migrate-up migrate-down migrate-create migrate-version
-migrate-create:
+migration-create:
 	migrate create -ext sql -dir $(MIGRATIONS_PATH) -seq $(NAME)
 migrate-up:
 	migrate -path $(MIGRATIONS_PATH) -database "$(DB_URL)" up
