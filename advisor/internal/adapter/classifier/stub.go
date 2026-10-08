@@ -37,11 +37,14 @@ func (s *StubAdapter) ClassifyIntent(
 			time.Now().AddDate(0, 0, 30),
 		)
 
+		fakeWord := gofakeit.Word()
+		fakeNumber := gofakeit.Number(1, 20)
+
 		return &domain.ClassifiedIntent{
 			TargetQueue: "reminder_agent",
 			Action:      "CREATE_REMINDER",
 			Confidence:  1.0,
-			Parameters:  []byte(fmt.Sprintf(`{"title": "Fake reminder title - %s %d", "scheduled_at": "%s"}`, gofakeit.Word(), gofakeit.Number(1, 20), reminderDate.Format(time.RFC3339))),
+			Parameters:  []byte(fmt.Sprintf(`{"title": "Fake reminder title - %s %d", "description": "Fake reminder description lala lala lala - %s %d", "remind_at": "%s"}`, fakeWord, fakeNumber, fakeWord, fakeNumber, reminderDate.Format(time.RFC3339))),
 		}, nil
 
 	case "FALLBACK":
