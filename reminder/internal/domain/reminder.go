@@ -4,6 +4,17 @@ import (
 	"time"
 )
 
+// Reminder represents the internal database record
+type Reminder struct {
+	ID          int64     `db:"id"`
+	UserID      string    `db:"user_id"`
+	Title       string    `db:"title"`
+	Description string    `db:"description"`
+	RemindAt    time.Time `db:"remind_at"`
+	CreatedAt   time.Time `db:"created_at"`
+	UpdatedAt   time.Time `db:"updated_at"`
+}
+
 // OriginalMessage captures the origin of the request (e.g., chat/telegram/whatsapp message)
 type OriginalMessage struct {
 	MessageID  string    `json:"message_id" db:"message_id"`

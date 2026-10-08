@@ -8,18 +8,33 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/lucasschilin/s5n/reminder/internal/adapter/database"
 	"github.com/lucasschilin/s5n/reminder/internal/adapter/queue"
 	"github.com/lucasschilin/s5n/reminder/internal/config"
 	"github.com/lucasschilin/s5n/reminder/internal/domain"
+	"github.com/lucasschilin/s5n/reminder/internal/services"
 )
 
 func init() {
 	config.Load()
 }
+
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// Initialize database connection (no automatic migrations)
+	db, err := database.NewSQLiteDB("reminders.db")
+	if err != nil {
+		log.Fatalf("❌ Error initializing database: %v", err)
+	}
+	defer db.Close()
+
+	// 2. Wire Repository -> Service
+	reminderRepo := database.NewSQLiteRepository(db)
+	reminderService := services.NewReminderService(reminderRepo)
+
+	// 3. Initialize RabbitMQ Consumer
 	consumer, err := queue.NewRabbitMQConsumer[domain.ReminderQueuePayload](
 		config.AppConfig.RabbitMQConnURL, "reminder_agent",
 	)
@@ -28,24 +43,20 @@ func main() {
 	}
 	defer consumer.Close()
 
-	printActionFunc := func(ctx context.Context, msg domain.ReminderQueuePayload) error {
-		log.Printf("📩 Received message: %+v", msg)
-		return nil
-	}
-
-	err = consumer.StartConsuming(ctx, printActionFunc)
+	// 4. Start processing messages through domain service
+	err = consumer.StartConsuming(ctx, reminderService.ProcessQueueMessage)
 	if err != nil {
-		log.Fatalf("❌ Error starting consumption: %v", err)
+		log.Fatalf("❌ Error starting queue consumer: %v", err)
 	}
 
 	stopSignal := make(chan os.Signal, 1)
 	signal.Notify(stopSignal, os.Interrupt, syscall.SIGTERM)
 
-	log.Println("🟢 Intent Router Service running. Press CTRL+C to exit.")
+	log.Println("🟢 Service running. Press CTRL+C to exit.")
 	<-stopSignal
 
-	log.Println("⏳ Finishing up, waiting for ongoing message processing to complete...")
+	log.Println("⏳ Shutting down gracefully...")
 	cancel()
 	time.Sleep(1 * time.Second)
-	log.Println("👋 Intent Router Service finished successfully.")
+	log.Println("👋 Service stopped successfully.")
 }
